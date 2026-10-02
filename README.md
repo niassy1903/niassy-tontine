@@ -28,6 +28,8 @@ Avant le seeding, définir `NIASSY_ADMIN_PASSWORD` dans l’environnement pour c
 
 Renseigner `DB_CONNECTION=mysql`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` et `DB_PASSWORD` dans l’environnement avant de lancer les migrations.
 
+Pour un fournisseur qui exige TLS, comme Aiven, télécharger son certificat CA et définir `MYSQL_ATTR_SSL_CA` vers le chemin lisible par l'application. Sur Render, un fichier secret nommé `ca.pem` est accessible sous `/etc/secrets/ca.pem`. La vérification du certificat serveur reste activée lorsque ce paramètre est défini.
+
 ## Fonctionnalités disponibles
 
 - Accueil public bleu/blanc et découverte des tontines publiques
