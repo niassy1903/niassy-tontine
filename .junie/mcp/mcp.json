@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/opt/homebrew/Cellar/php@8.4/8.4.23/bin/php",
+            "args": [
+                "/Users/mouhamadoulamineniassy/Documents/niassy-tontine/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}

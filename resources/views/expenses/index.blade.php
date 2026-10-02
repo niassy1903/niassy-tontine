@@ -1,0 +1,5 @@
+@extends('layouts.app')
+@php($pageTitle = 'Dépenses')
+@section('content')
+<div class="page-heading"><div><span class="eyebrow blue">TRÉSORERIE</span><h1>Dépenses</h1><p>Une vue consolidée des sorties de trésorerie de vos tontines.</p></div></div><div class="panel-card"><div class="table-responsive"><table class="table"><thead><tr><th>Motif</th><th>Tontine</th><th>Catégorie</th><th>Date</th><th class="text-end">Montant</th></tr></thead><tbody>@forelse($expenses as $expense)<tr><td><strong>{{ $expense->reason }}</strong></td><td>{{ $expense->tontine->name }}</td><td><span class="badge-soft">{{ ucfirst($expense->category) }}</span></td><td>{{ $expense->spent_at->format('d/m/Y') }}</td><td class="text-end fw-bold">{{ number_format($expense->amount,0,',',' ') }} F</td></tr>@empty<tr><td colspan="5"><div class="empty-state"><i class="bi bi-receipt"></i><h5>Aucune dépense</h5><p>Les dépenses de vos tontines apparaîtront ici.</p></div></td></tr>@endforelse</tbody></table></div>{{ $expenses->links() }}</div>
+@endsection

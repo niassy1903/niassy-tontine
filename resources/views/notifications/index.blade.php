@@ -1,0 +1,6 @@
+@extends('layouts.app')
+@php($pageTitle = 'Notifications')
+@section('content')
+<div class="page-heading"><div><span class="eyebrow blue">CENTRE D’ALERTES</span><h1>Notifications</h1><p>Restez informé des invitations, paiements et échéances de vos tontines.</p></div><form method="POST" action="{{ route('notifications.read-all') }}">@csrf<button class="btn btn-light"><i class="bi bi-check2-all me-2"></i>Tout marquer comme lu</button></form></div>
+<div class="panel-card">@forelse($notifications as $notification)<div class="notification-row {{ is_null($notification->read_at) ? 'unread' : '' }}"><span class="activity-icon {{ is_null($notification->read_at) ? '' : 'success' }}"><i class="bi bi-bell"></i></span><div class="flex-grow-1"><strong>{{ $notification->data['title'] ?? 'Notification' }}</strong><p>{{ $notification->data['message'] ?? 'Une nouvelle activité concerne votre espace.' }}</p><small>{{ $notification->created_at->diffForHumans() }}</small></div>@if(is_null($notification->read_at))<form method="POST" action="{{ route('notifications.read',$notification->id) }}">@csrf<button class="btn btn-sm btn-light">Marquer comme lu</button></form>@endif</div>@empty<div class="empty-state"><i class="bi bi-bell"></i><h5>Vous êtes à jour</h5><p>Aucune notification pour le moment.</p></div>@endforelse{{ $notifications->links() }}</div>
+@endsection

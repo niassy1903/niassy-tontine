@@ -1,0 +1,14 @@
+.env
+.env.*
+.git
+.github
+.idea
+.vscode
+node_modules
+vendor
+tests
+public/build
+public/hot
+storage/logs/*
+database/database.sqlite
+*.log
