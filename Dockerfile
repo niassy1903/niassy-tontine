@@ -5,16 +5,20 @@ WORKDIR /app
 RUN corepack enable
 
 COPY package.json pnpm-lock.yaml ./
+
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+
 RUN pnpm run build
+
 
 FROM composer:2 AS vendor
 
 WORKDIR /app
 
 COPY composer.json composer.lock ./
+
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -24,7 +28,9 @@ RUN composer install \
     --no-scripts
 
 COPY . .
+
 RUN composer dump-autoload --no-dev --optimize --no-scripts
+
 
 FROM php:8.4-apache
 
@@ -56,6 +62,11 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public \
 WORKDIR /var/www/html
 
 COPY --from=vendor --chown=www-data:www-data /app/ ./
+
+# Copier les fichiers publics classiques
+COPY --from=vendor --chown=www-data:www-data /app/public/css/ ./public/css/
+
+# Copier les assets Vite compilés
 COPY --from=assets --chown=www-data:www-data /app/public/build/ ./public/build/
 
 RUN mkdir -p \
