@@ -49,9 +49,8 @@ RUN apt-get update \
         zip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN a2enmod headers rewrite \
-    && sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
-    && sed -ri '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+# Apache
+RUN a2enmod rewrite headers
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public \
     APP_DEBUG=false \
@@ -61,14 +60,40 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public \
 
 WORKDIR /var/www/html
 
+# Application Laravel
 COPY --from=vendor --chown=www-data:www-data /app/ ./
 
-# Copier les fichiers publics classiques
-COPY --from=vendor --chown=www-data:www-data /app/public/css/ ./public/css/
-
-# Copier les assets Vite compilés
+# Assets Vite
 COPY --from=assets --chown=www-data:www-data /app/public/build/ ./public/build/
 
+# CSS classiques dans public/css
+COPY --from=vendor --chown=www-data:www-data /app/public/css/ ./public/css/
+
+# Configuration Apache
+RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#' \
+    /etc/apache2/sites-available/000-default.conf \
+    \
+    && cat >> /etc/apache2/apache2.conf <<'EOF'
+
+<Directory /var/www/html/public>
+    AllowOverride All
+    Options Indexes FollowSymLinks
+    Require all granted
+</Directory>
+EOF
+
+# Vérification des fichiers publics
+RUN echo "===== PUBLIC =====" \
+    && ls -lah /var/www/html/public \
+    && echo "===== CSS =====" \
+    && ls -lah /var/www/html/public/css \
+    && echo "===== VERIFY CSS =====" \
+    && test -f /var/www/html/public/css/niassy.css \
+    && test -f /var/www/html/public/css/components.css \
+    && test -f /var/www/html/public/css/notifications.css \
+    && echo "===== CSS FILES OK ====="
+
+# Laravel writable directories
 RUN mkdir -p \
         storage/framework/cache/data \
         storage/framework/sessions \
@@ -82,5 +107,6 @@ RUN mkdir -p \
 EXPOSE 10000
 
 CMD sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf \
-    && sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf \
+    && sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" \
+        /etc/apache2/sites-available/000-default.conf \
     && exec apache2-foreground
